@@ -10,9 +10,10 @@ import static org.junit.jupiter.api.Assertions.*; //JUnit이 제공하는 기능
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class StudyTest {
 
-    @Test
+    /*@Test
+    @Tag("fast")*/
     @DisplayName("스터디 객체 만들기 fast")
-    @Tag("fast")
+    @FastTest
     void create_new_study() {
         Study study = new Study(10);
 
@@ -31,9 +32,8 @@ class StudyTest {
         });
     }
 
-    @Test
     @DisplayName("스터디 객체 만들기 slow")
-    @Tag("slow")
+    @SlowTest
     void create_new_study_again() {
         System.out.println("오래걸리니까 LOCAL에서 돌리지 말고 CI 환경에서 돌리자");
     }
