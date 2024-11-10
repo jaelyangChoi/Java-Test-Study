@@ -1,22 +1,37 @@
 package org.example.thejavatest;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.AggregateWith;
+import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregationException;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
+import org.junit.jupiter.params.converter.ArgumentConversionException;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.converter.SimpleArgumentConverter;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.*; //JUnit이 제공하는 기능
+import static org.junit.jupiter.api.Assertions.*;
 
 //전체 적용 : 메소드 명의 언더스코어를 공백으로 치환
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StudyTest {
+
+    int value = 0;
 
     /*@Test
     @Tag("fast")*/
     @DisplayName("스터디 객체 만들기 fast")
     @FastTest
     void create_new_study() {
+        System.out.println(this);
+        System.out.println("value = " + value++);
+
         Study study = new Study(10);
 
         assertAll(
@@ -37,6 +52,8 @@ class StudyTest {
     @DisplayName("스터디 객체 만들기 slow")
     @SlowTest
     void create_new_study_again() {
+        System.out.println(this);
+        System.out.println("value = " + value++);
         System.out.println("오래걸리니까 LOCAL에서 돌리지 말고 CI 환경에서 돌리자");
     }
 
@@ -47,13 +64,39 @@ class StudyTest {
         System.out.println("StudyTest.repeatTest " + repetitionInfo.getCurrentRepetition()
                 + "/" + repetitionInfo.getTotalRepetitions());
     }
+    //@CsvSource({"java, 10", ""})
 
     @DisplayName("스터디 만들기")
-    @ParameterizedTest(name = "{index} {displayName}, message={0}}")
-    @ValueSource(strings = {"날씨가", "많이", "추워지고", "있네요"})
-    void parameterizedTest(String message) {
-        System.out.println("message = " + message);
+    @ParameterizedTest(name = "{index} {displayName}, study={0}}")
+//    @NullAndEmptySource // Null, empty 값 추가
+    @ValueSource(ints = {10, 20, 30})
+    void parameterizedTest(@ConvertWith(StudyConverter.class) Study study) {
+        System.out.println("study = " + study.getLimit());
     }
+
+    static class StudyConverter extends SimpleArgumentConverter {
+        @Override
+        protected Study convert(Object source, Class<?> targetType) throws ArgumentConversionException {
+            assertEquals(Study.class, targetType, () -> "Can only convert to Study");
+            return new Study(Integer.parseInt(source.toString()));
+        }
+    }
+
+    @DisplayName("스터디 만들기 CSV")
+    @ParameterizedTest(name = "{index} {displayName}, study={0}}")
+    @CsvSource({"10, '자바 스터디'", "20, 스프링"})
+    void parameterizedTestCsv(@AggregateWith(StudyAggregator.class) Study study) {
+        System.out.println(study);
+    }
+
+    //제약 조건 : static class 여야 한다.
+    static class StudyAggregator implements ArgumentsAggregator {
+        @Override
+        public Object aggregateArguments(ArgumentsAccessor accessor, ParameterContext parameterContext) throws ArgumentsAggregationException {
+            return new Study(accessor.getInteger(0), accessor.getString(1));
+        }
+    }
+
 
     //전체 테스트를 실행하기 전에 한번 실행
     @BeforeAll
