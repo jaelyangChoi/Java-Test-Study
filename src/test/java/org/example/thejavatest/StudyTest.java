@@ -1,7 +1,9 @@
 package org.example.thejavatest;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
@@ -18,20 +20,18 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.*;
 
 //전체 적용 : 메소드 명의 언더스코어를 공백으로 치환
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS) //상태 공유
+//@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class) //순서
+//@ExtendWith(FindSlowTestExtension.class)
 class StudyTest {
 
-    int value = 0; //상태 공유를 위함
+    @RegisterExtension
+    static FindSlowTestExtension findSlowTestExtension = new FindSlowTestExtension(1000L);
 
-    @Order(2)
     @DisplayName("스터디 객체 만들기 fast")
     @FastTest
     void create_new_study() {
-        System.out.println(this);
-        System.out.println("value = " + value++);
-
         Study study = new Study(10);
 
         assertAll(
@@ -49,12 +49,11 @@ class StudyTest {
         });
     }
 
-    @Order(1)
     @DisplayName("스터디 객체 만들기 slow")
-    @SlowTest
-    void create_new_study_again() {
-        System.out.println(this);
-        System.out.println("value = " + value++);
+//    @SlowTest
+    @Test
+    void create_new_study_again() throws InterruptedException {
+        Thread.sleep(1005L);
         System.out.println("오래걸리니까 LOCAL에서 돌리지 말고 CI 환경에서 돌리자");
     }
 
