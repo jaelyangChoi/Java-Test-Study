@@ -11,7 +11,8 @@ import static org.junit.jupiter.api.Assertions.*; //JUnit이 제공하는 기능
 class StudyTest {
 
     @Test
-    @DisplayName("스터디 객체 만들기")
+    @DisplayName("스터디 객체 만들기 fast")
+    @Tag("fast")
     void create_new_study() {
         Study study = new Study(10);
 
@@ -31,9 +32,10 @@ class StudyTest {
     }
 
     @Test
-    @Disabled
+    @DisplayName("스터디 객체 만들기 slow")
+    @Tag("slow")
     void create_new_study_again() {
-
+        System.out.println("오래걸리니까 LOCAL에서 돌리지 말고 CI 환경에서 돌리자");
     }
 
     //전체 테스트를 실행하기 전에 한번 실행
