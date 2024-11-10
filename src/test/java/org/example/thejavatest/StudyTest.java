@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 //전체 적용 : 메소드 명의 언더스코어를 공백으로 치환
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) //상태 공유
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class) //순서
 class StudyTest {
 
-    int value = 0;
+    int value = 0; //상태 공유를 위함
 
-    /*@Test
-    @Tag("fast")*/
+    @Order(2)
     @DisplayName("스터디 객체 만들기 fast")
     @FastTest
     void create_new_study() {
@@ -49,6 +49,7 @@ class StudyTest {
         });
     }
 
+    @Order(1)
     @DisplayName("스터디 객체 만들기 slow")
     @SlowTest
     void create_new_study_again() {
