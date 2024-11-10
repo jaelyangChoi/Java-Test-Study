@@ -2,24 +2,38 @@ package org.example.thejavatest;
 
 import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.*; //JUnit이 제공하는 기능
 
 //전체 적용 : 메소드 명의 언더스코어를 공백으로 치환
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class InitTest {
+class StudyTest {
 
     @Test
     @DisplayName("스터디 객체 만들기")
     void create_new_study() {
-        Init study = new Init();
-        assertNotNull(study);
-        System.out.println("InitTest.create_new_study");
+        Study study = new Study(10);
+
+        assertAll(
+                () -> assertNotNull(study),
+                () -> assertEquals(StudyStatus.DRAFT, study.getStatus(), () -> "스터디를 처음 만들면 상태값이 DRAFT여야 한다"),
+                () -> assertTrue(study.getLimit() > 0, () -> "스터디 최대 참석 인원은 0보다 커야 한다.")
+        );
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Study(-1));
+        assertEquals("limit은 0보다 커야 한다.", exception.getMessage());
+
+        assertTimeout(Duration.ofSeconds(1), () -> {
+            new Study(0);
+            Thread.sleep(100);
+        });
     }
 
     @Test
-    @Disabled //깨지는 테스트에 활용
+    @Disabled
     void create_new_study_again() {
-        System.out.println("InitTest.create_new_study_again");
+
     }
 
     //전체 테스트를 실행하기 전에 한번 실행
