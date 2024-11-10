@@ -1,6 +1,8 @@
 package org.example.thejavatest;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
 
@@ -36,6 +38,21 @@ class StudyTest {
     @SlowTest
     void create_new_study_again() {
         System.out.println("오래걸리니까 LOCAL에서 돌리지 말고 CI 환경에서 돌리자");
+    }
+
+
+    @DisplayName("스터디 만들기")
+    @RepeatedTest(value = 10, name = "맨 앞은 안되네 {displayName}, {currentRepetition}/{totalRepetitions}")
+    void repeatTest(RepetitionInfo repetitionInfo) {
+        System.out.println("StudyTest.repeatTest " + repetitionInfo.getCurrentRepetition()
+                + "/" + repetitionInfo.getTotalRepetitions());
+    }
+
+    @DisplayName("스터디 만들기")
+    @ParameterizedTest(name = "{index} {displayName}, message={0}}")
+    @ValueSource(strings = {"날씨가", "많이", "추워지고", "있네요"})
+    void parameterizedTest(String message) {
+        System.out.println("message = " + message);
     }
 
     //전체 테스트를 실행하기 전에 한번 실행
