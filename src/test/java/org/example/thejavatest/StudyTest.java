@@ -38,7 +38,7 @@ class StudyTest {
         assertAll(
                 () -> assertNotNull(study),
                 () -> assertEquals(StudyStatus.DRAFT, study.getStatus(), () -> "스터디를 처음 만들면 상태값이 DRAFT여야 한다"),
-                () -> assertTrue(study.getLimit() > 0, () -> "스터디 최대 참석 인원은 0보다 커야 한다.")
+                () -> assertTrue(study.getLimitCount() > 0, () -> "스터디 최대 참석 인원은 0보다 커야 한다.")
         );
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Study(-1));
@@ -72,7 +72,7 @@ class StudyTest {
 //    @NullAndEmptySource // Null, empty 값 추가
     @ValueSource(ints = {10, 20, 30})
     void parameterizedTest(@ConvertWith(StudyConverter.class) Study study) {
-        System.out.println("study = " + study.getLimit());
+        System.out.println("study = " + study.getLimitCount());
     }
 
     static class StudyConverter extends SimpleArgumentConverter {
