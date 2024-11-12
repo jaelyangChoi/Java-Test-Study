@@ -1,5 +1,9 @@
 package org.example.thejavatest.study;
 
+import lombok.RequiredArgsConstructor;
+import org.example.thejavatest.domain.Study;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequiredArgsConstructor
 public class StudyController {
