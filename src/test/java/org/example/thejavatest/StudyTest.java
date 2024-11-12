@@ -1,7 +1,8 @@
 package org.example.thejavatest;
 
+import org.example.thejavatest.domain.Study;
+import org.example.thejavatest.domain.StudyStatus;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
