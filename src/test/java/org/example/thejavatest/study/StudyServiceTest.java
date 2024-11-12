@@ -1,6 +1,5 @@
 package org.example.thejavatest.study;
 
-import org.assertj.core.api.Assertions;
 import org.example.thejavatest.domain.Member;
 import org.example.thejavatest.domain.Study;
 import org.example.thejavatest.member.MemberService;
@@ -8,14 +7,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +34,7 @@ class StudyServiceTest {
 
         //stubbing
         when(memberService.findById(1L)).thenReturn(Optional.of(member));
-        Mockito.doThrow(new IllegalArgumentException()).when(memberService).validate(1L);
+        doThrow(new IllegalArgumentException()).when(memberService).validate(1L);
 
         assertThat(member).isEqualTo(memberService.findById(1L).get());
         assertThrows(IllegalArgumentException.class, () -> memberService.validate(1L));
@@ -51,6 +52,7 @@ class StudyServiceTest {
 
     @Test
     void createNewStudy() {
+        // Given
         StudyService studyService = new StudyService(memberService, studyRepository);
         assertNotNull(studyService);
 
@@ -63,8 +65,10 @@ class StudyServiceTest {
         when(memberService.findById(1L)).thenReturn(Optional.of(member));
         when(studyRepository.save(study)).thenReturn(study);
 
+        // When
         studyService.createNewStudy(1L, study);
 
+        // Then
         verify(memberService, times(1)).notify(study);
 //        verifyNoMoreInteractions(memberService);
         verify(memberService, times(1)).notify(member);
@@ -74,4 +78,30 @@ class StudyServiceTest {
         inOrder.verify(memberService).notify(study);
         inOrder.verify(memberService).notify(member);
     }
+
+    //Mockito BDD 스타일 API (Behavior Driven Development)
+    @Test
+    void BDD_Style(){
+        // Given
+        StudyService studyService = new StudyService(memberService, studyRepository);
+        assertNotNull(studyService);
+
+        Member member = new Member();
+        member.setId(1L);
+        member.setEmail("test@Test.com");
+
+        Study study = new Study(10, "테스트");
+
+        given(memberService.findById(1L)).willReturn(Optional.of(member));
+        given(studyRepository.save(study)).willReturn(study);
+
+        // When
+        studyService.createNewStudy(1L, study);
+
+        // Then
+        then(memberService).should(times(1)).notify(study);
+        then(memberService).should(times(1)).notify(member);
+        then(memberService).shouldHaveNoMoreInteractions();
+    }
+
 }
