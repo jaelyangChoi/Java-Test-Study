@@ -22,7 +22,10 @@ public class StudyService {
     public Study createNewStudy(Long memberId, Study study) {
         Optional<Member> member = memberService.findById(memberId);
         study.setOwner(member.orElseThrow(() -> new IllegalArgumentException("Member doesn't exist for id: '" + memberId + "'")));
-        return repository.save(study);
+        Study newStudy = repository.save(study);
+        memberService.notify(newStudy);
+        memberService.notify(member.get());
+        return newStudy;
     }
 
     public Study openStudy(Study study) {
@@ -30,9 +33,5 @@ public class StudyService {
         Study openedStudy = repository.save(study);
         memberService.notify(openedStudy);
         return openedStudy;
-    }
-
-    public void hi() {
-
     }
 }

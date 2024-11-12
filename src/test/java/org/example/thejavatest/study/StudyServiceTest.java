@@ -6,6 +6,7 @@ import org.example.thejavatest.domain.Study;
 import org.example.thejavatest.member.MemberService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,7 +16,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StudyServiceTest {
@@ -49,39 +50,28 @@ class StudyServiceTest {
     }
 
     @Test
-    void stubbingPractice() {
-        Study study = new Study(10, "테스트");
-        Member member = new Member();
-        member.setId(1L);
-
-        when(memberService.findById(1L)).thenReturn(Optional.of(member));
-        when(studyRepository.save(study)).thenReturn(study);
-
-        StudyService studyService = new StudyService(memberService, studyRepository);
-        study = studyService.createNewStudy(1L, study);
-
-        assertNotNull(study.getOwner());
-        assertEquals(member, study.getOwner());
-
-    }
-
-    @Test
     void createNewStudy() {
         StudyService studyService = new StudyService(memberService, studyRepository);
+        assertNotNull(studyService);
 
         Member member = new Member();
         member.setId(1L);
         member.setEmail("test@Test.com");
 
-        //stubbing
+        Study study = new Study(10, "테스트");
+
         when(memberService.findById(1L)).thenReturn(Optional.of(member));
-        when(memberService.findById(2L)).thenThrow(new RuntimeException());
-        Mockito.doThrow(new IllegalArgumentException()).when(memberService).validate(any());
+        when(studyRepository.save(study)).thenReturn(study);
 
-        assertThat(member).isEqualTo(memberService.findById(1L).get());
-        assertThrows(RuntimeException.class, () -> memberService.findById(2L).get());
-        assertThrows(IllegalArgumentException.class, () -> memberService.validate(1L));
+        studyService.createNewStudy(1L, study);
+
+        verify(memberService, times(1)).notify(study);
+//        verifyNoMoreInteractions(memberService);
+        verify(memberService, times(1)).notify(member);
+        verify(memberService, never()).validate(anyLong());
+
+        InOrder inOrder = inOrder(memberService);
+        inOrder.verify(memberService).notify(study);
+        inOrder.verify(memberService).notify(member);
     }
-
-
 }
