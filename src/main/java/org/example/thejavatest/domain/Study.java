@@ -1,5 +1,6 @@
 package org.example.thejavatest.domain;
 
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,8 @@ public class Study {
     private int limitCount;
     private String name;
     private LocalDateTime openedDateTime;
-    private Long ownerId;
+    @ManyToOne
+    private Member owner;
 
     public Study(int limit, String name) {
         this.limitCount = limit;
@@ -36,7 +38,6 @@ public class Study {
     public void open() {
         this.openedDateTime = LocalDateTime.now();
         this.status = StudyStatus.OPENED;
-
     }
 
 }
